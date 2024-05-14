@@ -98,7 +98,6 @@ function update_product_meta($product_id)
 }
 
 
-
 function call_openai_api($title, $sku, $description, $short_description)
 {
     $api_key = defined('OPENAI_API_KEY') ? OPENAI_API_KEY : 'key here'; 
