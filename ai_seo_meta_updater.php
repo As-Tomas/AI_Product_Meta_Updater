@@ -110,7 +110,10 @@ function call_openai_api($title, $sku, $description, $short_description)
         'messages' => [
             [
                 'role' => 'system',
-                'content' => 'You are a helpful assistant.'
+                'content' => 'You are a helpful assistant. Generate a focus keyphrase and meta description from the user provided 
+                information about the product. Please return response in Norwegian language. Response should be in JSON format 
+                containing keys: focus_keyphrase, meta_description. 
+                '
             ],
             [
                 'role' => 'user',
@@ -118,7 +121,7 @@ function call_openai_api($title, $sku, $description, $short_description)
             ]
         ],
         'max_tokens' => 150,
-        'temperature' => 0
+        'temperature' => 0.4
     ]);
 
     $response = wp_remote_post($endpoint, [
@@ -151,19 +154,23 @@ function call_openai_api($title, $sku, $description, $short_description)
 
 
     if (json_last_error() !== JSON_ERROR_NONE) {
-        error_log('Failed to decode JSON from OpenAI response: ' . $data['choices'][0]['message']['content']);
+        error_log('Failed to decode JSON from OpenAI response: ' . $contentStr);
         return false;
     }
-
-    if (!isset($content['focusKeyphrase'], $content['metaDescription'])) {
-        error_log('Unexpected content in OpenAI API response: ' . $data['choices'][0]['message']['content']);
+        
+    $focusKeyphrase = isset($content['focusKeyphrase']) ? $content['focusKeyphrase'] : (isset($content['focus_keyphrase']) ? $content['focus_keyphrase'] : null);
+    $metaDescription = isset($content['metaDescription']) ? $content['metaDescription'] : (isset($content['meta_description']) ? $content['meta_description'] : null);
+    
+    if ($focusKeyphrase === null || $metaDescription === null) {
+        error_log('Unexpected content in OpenAI API response: ' . $contentStr);
         return false;
     }
-
+    
     return [
-        'focus_keyphrase' => $content['focusKeyphrase'],
-        'meta_description' => $content['metaDescription']
+        'focus_keyphrase' => $focusKeyphrase,
+        'meta_description' => $metaDescription
     ];
 }
+
 
 // http://test.local/?seo_meta_update=run
