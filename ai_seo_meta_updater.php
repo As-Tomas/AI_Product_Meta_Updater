@@ -104,7 +104,7 @@ function call_openai_api($title, $sku, $description, $short_description)
     $endpoint = 'https://api.openai.com/v1/chat/completions';
     $model = 'gpt-3.5-turbo'; // Replace this with the current available model if different
 
-    $prompt = "Generate a focus keyphrase and meta description in JSON format for the following product: Title: $title, SKU: $sku, Description: $description, Short Description: $short_description";
+    $prompt = "Title: $title, SKU: $sku, Description: $description, Short Description: $short_description";
     $body = json_encode([
         'model' => $model,
         'messages' => [
@@ -113,6 +113,9 @@ function call_openai_api($title, $sku, $description, $short_description)
                 'content' => 'You are a helpful assistant. Generate a focus keyphrase and meta description from the user provided 
                 information about the product. Please return response in Norwegian language. Response should be in JSON format 
                 containing keys: focus_keyphrase, meta_description. 
+                Keyphrase instructions: keyphrase or its synonyms should appear in the first paragraph,  all the words from 
+                keyphrase should appear in the SEO title, recommended maximum of 4 content words.
+                Meta description instructions: meta description should contain the keyphrase.
                 '
             ],
             [
